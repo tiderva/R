@@ -1,2 +1,2 @@
-# ranalysis
-R Code written for Data Science course
+# R
+R Code written for R programming course @ Harvard Extension School
