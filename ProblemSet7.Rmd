@@ -1,0 +1,111 @@
+---
+title: "CSCI-5A Problem Set 7"
+subtitle: Type your name here
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+
+#Instructions
+
+First, save this notebook with a title consisting of "ProblemSet7" and then your last name, with no spaces. So, for Bob Bunny, the file should be called "ProblemSet6Bunny". Also, type your name in the subtitle on line 2 above. Each problem will have a problem statement, followed with space for you to answer. Type your work in the code chunk where it says, "Type your answer in here". If we ask a question that has a numeric answer (for example, "How much money does Bob Bunny owe?"), then you should write some text in the notebook with your answer; don't assume that just the R printout is sufficient.
+
+When you're all done, knit the notebook to a PDF, and upload both the notebook and the PDF to Canvas. (Note: The notebook will have the file extension ".rmd".)
+
+
+
+
+Before we get started, let's clear out the environment:
+```{r}
+rm( list = ls() )
+```
+
+
+
+#Problem 1: Using Graphics to Detect Outliers
+
+In this problem, we're going to see how use graphical techniques to help in finding *outliers*, which are extreme observations which might be some sort of mistake or error.
+
+###Problem Statement
+
+You have a dataset consisting of gene expression data for 10 different genes. Some of the genes might have a few observations that are very far out of the range of the other observations. That doesn't necessarily mean that these observations are wrong, but it does mean that in the process of initially cleaning data you should check these and make sure they're OK.
+
+**Problem**
+
+Read in the CSV file "Problem 1 data.csv". This has 10 columns, each with 1000 observations, and each column represents expression levels for a gene. (I made up the gene names.) For each gene, you should create a graph to search for outliers i.e. observations with extreme values that look out of place. Not every gene will necessarily have an outlier, and you don't have to fix these values; in the real world you would have to consult with your team members about these values.
+
+Report only the genes that you think have at least one outlier. For the genes that have at least one outlier, tell us what the gene is, and show us the graph. If the gene doesn't have at least one outlier, then don't show us the graph. Note that every variable will have observations at the edges of the distribution, and that's OK. What you're looking for are things that are very very far away.
+
+HINT: Think about which graphical technique you would use to examine all the values of a particular gene. Also think about writing a function that would automate the process so that you could examine each gene with little effort.
+
+**Solution**
+
+For this assignment, you will have to create your own code chunks. Don't do everything in one code chunk -- instead, break your code up into pieces, and use the notebook features to integrate text with your code, so that Karen can understand what you're doing. It's up to you to design your answer to make it readable and understandable.
+
+
+
+
+#Problem 2: Searching for Bad Values
+
+In this problem, you will search a vector for corrupted elements.
+
+DNA sequence data consists of the four base pairs represented by the letters *A*, *C*, *G*, and *T*. You have a dataset consisting of a 5000 base pair sequence, but some of the values have been corrupted, and are not one of the legal values *A*, *C*, *G*, or *T*.
+
+**Problem**
+Read in the tab-delimited text file "Problem 2 data.txt". This consists of one column vector with 5000 observations, each of which is a one-character string representing a base pair. Write a function that tests if a character string is a legal value for a DNA base pair i.e. one of *A*, *C*, *G*, or *T*, and then use a `for` loop to scan over the sequence data vector. If an element of the vector is not a legal DNA value, then print out a message reporting the index of the element, along with the bad value.
+
+**Solution**
+
+
+
+
+
+
+
+#Problem 3: Golf Score Bar Plot
+
+Which species plays golf better: hedgehogs, bunny rabbits, or armadillos? You have a data set consisting of golf scores for players of all three species, and you'd like to make a bar plot to visually determine which species is better at golf. Unfortunately, some of the golf scores are nissing, and this has been recorded with "Missing" in the data file.
+
+**Problem**
+
+Read in the comma-separated value file "Problem 3 data.csv", and make a bar chart comparing the mean golf scores for hedgehogs, bunny rabbits, and armadillos. You'll have to deal with the missing data; remember that because of the word "Missing" this will cause all the numeric data in the file to be converted to a factor variable, so you'll have to figure out how to get it back to a numeric format. You can then use `tapply()` to create a table of means that you can send to the `barplot()` function.
+
+TIP: When you run `tapply()`, it takes a numeric vector for the first argument, a factor vector for the second argument, and a function for the third argument. Optionally, for a fourth argument, you can have any special named parameters to use with the function. If you use the function `mean()` and there is missing data in the numeric vector, what named parameter would be good to use?
+
+**Solution**
+
+
+
+
+
+#Problem 4: Sales Data Line Chart
+
+You have sales data for the years 2013 to 2017, for two locations: Boston and Salt Lake City. You would like to make a line chart, showing the trend of the sales for the two locations. Unfortunately, your data has a typo in it.
+
+**Problem**
+
+Read in the comma-separated file "Problem 4 data.csv", and create a line chart for the sales across the years 2013 to 2017, for both the Boston and Salt Lake City branches. You'll have to figure out how to deal with the typo in the data. Make a nice line chart, showing the lines for both branches, with points and a legend.
+
+**Solution**
+
+
+
+
+#Problem 5: Sales Data Pie Chart
+
+You have sales data for 5 salespersons: . Unfortunately, some of the sales data was missing, and this was recorded in the dataset by using the value -999. Your job is to produce a pie chart presenting the proportions of the total sales amount for the year, for each of the salespersons.
+
+**Problem**
+
+Read in the text-delimited file "Problem 5 data.txt", and convert the entries with -999 to `NA`. Using `tapply()`, create a summary of the total sales for each salesperson; you'll need to use the function `sum()` for this, and you should remember from Problem 3 that you can pass the optional named parameter `na.rm` to the `sum()` by including it at the end of the `tapply()` function call. Finally, make a nice pie chart using this data.
+
+**Solution**
+
+
+
+
+
+
+

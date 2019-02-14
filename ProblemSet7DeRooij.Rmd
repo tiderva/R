@@ -1,0 +1,549 @@
+---
+title: "CSCI-5A Problem Set 7"
+subtitle: Tim de Rooij
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+
+#Instructions
+
+First, save this notebook with a title consisting of "ProblemSet7" and then your last name, with no spaces. So, for Bob Bunny, the file should be called "ProblemSet6Bunny". Also, type your name in the subtitle on line 2 above. Each problem will have a problem statement, followed with space for you to answer. Type your work in the code chunk where it says, "Type your answer in here". If we ask a question that has a numeric answer (for example, "How much money does Bob Bunny owe?"), then you should write some text in the notebook with your answer; don't assume that just the R printout is sufficient.
+
+When you're all done, knit the notebook to a PDF, and upload both the notebook and the PDF to Canvas. (Note: The notebook will have the file extension ".rmd".)
+
+
+
+
+Before we get started, let's clear out the environment:
+```{r}
+rm( list = ls() )
+```
+
+Set working directory and load libraries
+
+```{r}
+# set working directory
+setwd("/Users/TdR/Coding/R/IntroductiontoR/Problem sets/ProblemSet7")
+
+# load our libraries
+library(tidyverse)
+```
+
+
+#Problem 1: Using Graphics to Detect Outliers
+
+In this problem, we're going to see how to use graphical techniques to help in finding *outliers*, which are extreme observations which might be some sort of mistake or error.
+
+###Problem Statement
+
+You have a dataset consisting of gene expression data for 10 different genes. Some of the genes might have a few observations that are very far out of the range of the other observations. That doesn't necessarily mean that these observations are wrong, but it does mean that in the process of initially cleaning data you should check these and make sure they're OK.
+
+**Problem**
+
+Read in the CSV file "Problem 1 data.csv". This has 10 columns, each with 1000 observations, and each column represents expression levels for a gene. (I made up the gene names.) For each gene, you should create a graph to search for outliers i.e. observations with extreme values that look out of place. Not every gene will necessarily have an outlier, and you don't have to fix these values; in the real world you would have to consult with your team members about these values.
+
+Report only the genes that you think have at least one outlier. For the genes that have at least one outlier, tell us what the gene is, and show us the graph. If the gene doesn't have at least one outlier, then don't show us the graph. Note that every variable will have observations at the edges of the distribution, and that's OK. What you're looking for are things that are very very far away.
+
+HINT: Think about which graphical technique you would use to examine all the values of a particular gene. Also think about writing a function that would automate the process so that you could examine each gene with little effort.
+
+**Solution**
+
+For this assignment, you will have to create your own code chunks. Don't do everything in one code chunk -- instead, break your code up into pieces, and use the notebook features to integrate text with your code, so that Karen can understand what you're doing. It's up to you to design your answer to make it readable and understandable.
+
+## Answer
+
+First we load the data file into a data frame.
+
+```{r}
+# load data
+genes.df <- read.csv( "/Users/TdR/Coding/R/IntroductiontoR/Problem sets/ProblemSet7/Data/Problem 1 data.csv" )
+```
+
+Insights from exploratory data analysis:
+
+- We have 1,000 observations of 10 variables
+- All variables are of numeric class
+- We observe significant differences in the summary statistics of the different gene types
+- For example, the mean value of the AMN.P gene is 0.45 and 999.20 for the NXT5 gene
+- Another observation is that some genes appear to have much more variance in the values observed
+- For example, the number of standard deviations that fit within the range (max minus min value) of VALV equals 3.4 versus 10.4 for the AZX gene. However, this could also be caused by single outliers
+
+```{r}
+head( genes.df ) # examine first 6 rows
+str( genes.df ) # examine data structure
+summary( genes.df ) # get summary
+# examine how many standard deviations fit within the range of the VALV gene
+( max( genes.df$VALV ) - min( genes.df$VALV ) ) / sd( genes.df$VALV )
+# compare with how many standard deviations fit within the range of the PTH4 gene
+( max( genes.df$AZX ) - min( genes.df$AZX ) ) / sd( genes.df$AZX )
+```
+
+We visualize the data using the scatterplot and the boxplot. Box plots in particular are helpful in detecting outliers. For this, we create two functions gene.scatterplot.creator() and gene.boxplot.creator().
+
+```{r}
+gene.scatterplot.creator <- function( gene.name, gene.index ) {
+  
+  ggplot( genes.df, aes( x = seq( 1, length( genes.df[[gene.index]] ) ), 
+                         y = genes.df[[gene.index]] ) ) + 
+  geom_point( stat = "identity", colour = "Dodgerblue3" ) + 
+  labs( title = paste( "Boxplot for", gene.name ),
+        subtitle = "Expression Level",
+        caption = "Data source: Prof. Theodore Whitfield",
+        tag = paste( "Figure ", gene.index, "A" ),
+        x = "Observation",
+        y = "Expression Level",
+        colour = "Gears" ) + 
+  theme_light()
+  
+}
+```
+
+
+```{r}
+gene.boxplot.creator <- function( gene.name, gene.index ) {
+  
+  ggplot( genes.df, aes( x = "", y = genes.df[[gene.index]] ) ) + 
+  geom_boxplot( fill = 'Dodgerblue3', color = "Dodgerblue4" ) + 
+  labs( title = paste( "Boxplot for", gene.name ),
+        subtitle = "Expression Level",
+        caption = "Data source: Prof. Theodore Whitfield",
+        tag = paste( "Figure ", gene.index, "B" ),
+        x = "Observations",
+        y = "Expression Level",
+        colour = "Gears" ) + 
+  theme_light()
+  
+}
+```
+
+We examine the 10 genes but will only show the plots of the genes for which we detected outliers.
+
+- 1 "HOT12"
+- 2 "JAX6"
+- 3 "KRS9"
+- 4 "ZIP.K"
+- 5 "JAZ8"
+- 6 "AMN.P"
+- 7 "NXT5"
+- 8 "VALV"
+- 9 "AZX"
+- 10 "PTH4"
+
+```{r}
+names(genes.df)
+```
+
+Scatterplot "HOT12" gene:
+
+```{r}
+gene.scatterplot.creator( "HOT12", 1 )
+```
+
+Boxplot HOT12 gene, showing two positive outliers (that are not too far off from the sample):
+
+```{r}
+gene.boxplot.creator( "HOT12", 1 )
+```
+
+Scatterplot KRS9 gene:
+
+```{r}
+gene.scatterplot.creator( "KRS9", 3 )
+```
+
+Boxplot KRS9 gene, showing two extreme positive outliers (indicating possible erroneous data):
+
+```{r}
+gene.boxplot.creator( "KRS9", 3 )
+```
+
+Scatterplot ZIP.K gene:
+
+```{r}
+gene.scatterplot.creator("ZIP.K", 4 )
+```
+
+Boxplot ZIP.K gene, showing one positive and ~two negative negative outliers:
+
+```{r}
+gene.boxplot.creator( "ZIP.K", 4 )
+```
+
+Scatterplot JAZ8 gene:
+
+```{r}
+gene.scatterplot.creator( "JAZ8", 5 )
+```
+
+Boxplot JAZ8 gene, showing one extreme positive outlier and a number of less extreme positive outliers:
+
+```{r}
+gene.boxplot.creator( "JAZ8", 5 )
+```
+
+Scatterplot for "AMN.P":
+
+```{r}
+gene.scatterplot.creator( "AMN.P", 6 )
+```
+
+Boxplot for "AMN.P", showing positive outliers:
+
+```{r}
+gene.boxplot.creator( "AMN.P", 6 )
+```
+
+
+Scatterplot for "AZX":
+
+```{r}
+gene.scatterplot.creator( "AZX", 9 )
+```
+
+Boxplot for "AZX", showing three smaller and two extreme negative outliers:
+
+```{r}
+gene.boxplot.creator( "AZX", 9 )
+```
+
+Scatterplot for "PTH4":
+
+```{r}
+gene.scatterplot.creator( "PTH4", 10 )
+```
+
+Boxplot for "PTH4", showing several positive outliers:
+
+```{r}
+gene.boxplot.creator( "PTH4", 10 )
+```
+
+In summary, for the following genes we found outliers in the data:
+
+- HOT12
+- KRS9
+- ZIP.K
+- JAZ8
+- AMN.P
+- AZX
+- PTH4
+
+
+
+#Problem 2: Searching for Bad Values
+
+In this problem, you will search a vector for corrupted elements.
+
+DNA sequence data consists of the four base pairs represented by the letters *A*, *C*, *G*, and *T*. You have a dataset consisting of a 5000 base pair sequence, but some of the values have been corrupted, and are not one of the legal values *A*, *C*, *G*, or *T*.
+
+**Problem**
+Read in the tab-delimited text file "Problem 2 data.txt". This consists of one column vector with 5000 observations, each of which is a one-character string representing a base pair. Write a function that tests if a character string is a legal value for a DNA base pair i.e. one of *A*, *C*, *G*, or *T*, and then use a `for` loop to scan over the sequence data vector. If an element of the vector is not a legal DNA value, then print out a message reporting the index of the element, along with the bad value.
+
+**Solution**
+
+We read the file and explore the data:
+
+- 5000 obvservations of 1 variable
+- Variable 'sequence.data' is of class factor, with 10 levels
+- We know that there are only 4 legal levels, so 6 levels must be illegal
+- We have 2 observations in illegal category "D"
+- We have 2 observations in illegal category "FZ"
+- We have 6 observations in other illegal categories
+- We have a total of 10 illegal observations
+
+```{r}
+# read file
+corrupt.vec <- read.delim( "/Users/TdR/Coding/R/IntroductiontoR/Problem sets/ProblemSet7/Data/Problem 2 data.txt" )
+
+# get structure
+str( corrupt.vec )
+
+# get summary
+summary ( corrupt.vec )
+```
+
+Because there are limitations to the use of logical operators on strings, we convert our sequence.data variable to numeric and store the results in a new column.
+
+We know the mapping because it follows a logical order:
+
+- 1 = A
+- 2 = B
+- 3 = C
+- 4 = D
+- 5 = FZ
+- 6 = G
+- 7 = J
+- 8 = PP
+- 9 = T
+- 10 = W
+
+Thus, we know the legal numbers are 1, 3, 6 and 9. The corrupt numbers are 2, 4, 5, 7, 8 and 10.
+
+```{r}
+# transform factor to numeric into new variable
+corrupt.vec$numeric.seq <- as.numeric( corrupt.vec$sequence.data )
+head( corrupt.vec )
+dim( corrupt.vec )
+```
+
+We create a function to test which observations are illegal, so we can display the value and report the index.
+
+```{r}
+corrupt.dna.detective <- function( x ) {
+  
+  for( i in 1:nrow( x ) ) {
+    
+    if( x[ i, 2] == 2 | 
+        x[ i, 2] == 4 | 
+        x[ i, 2] == 5 | 
+        x[ i, 2] == 7 |  
+        x[ i, 2] == 8 | 
+        x[ i, 2] == 10 ) {
+      
+      message( "Index: ", i, ", Value: ", x[ i, 1 ] )
+      
+    }
+  }  
+}
+```
+
+Next we run the function on our dataset.
+
+```{r}
+corrupt.dna.detective( corrupt.vec )
+```
+
+
+
+#Problem 3: Golf Score Bar Plot
+
+Which species plays golf better: hedgehogs, bunny rabbits, or armadillos? You have a data set consisting of golf scores for players of all three species, and you'd like to make a bar plot to visually determine which species is better at golf. Unfortunately, some of the golf scores are nissing, and this has been recorded with "Missing" in the data file.
+
+**Problem**
+
+Read in the comma-separated value file "Problem 3 data.csv", and make a bar chart comparing the mean golf scores for hedgehogs, bunny rabbits, and armadillos. You'll have to deal with the missing data; remember that because of the word "Missing" this will cause all the numeric data in the file to be converted to a factor variable, so you'll have to figure out how to get it back to a numeric format. You can then use `tapply()` to create a table of means that you can send to the `barplot()` function.
+
+TIP: When you run `tapply()`, it takes a numeric vector for the first argument, a factor vector for the second argument, and a function for the third argument. Optionally, for a fourth argument, you can have any special named parameters to use with the function. If you use the function `mean()` and there is missing data in the numeric vector, what named parameter would be good to use?
+
+**Solution**
+
+First we load and explore the data.
+
+- We have 5,000 observations of 3 variables
+- Variable "X" is of class integer and looks like an ID (holding values 1 to 630, for 630 participants)
+- Variables "species" is a factor with three levels: Armadillo, Bunny Rabbit, Hedgehog
+- Armadillo had 180 participants, Bunny Rabbit had 250 participants, and Hedgehog had 200 participants
+- Variable "golf.score" is of class Factor and needs to be transformed for further analysis
+
+```{r}
+# read file
+golf.scores.data.frame <- read.csv( "/Users/TdR/Coding/R/IntroductiontoR/Problem sets/ProblemSet7/Data/Problem 3 data.csv" )
+
+# examine first 6 rows
+head( golf.scores.data.frame )
+
+# examine the structure
+str( golf.scores.data.frame )
+
+# get summary
+summary( golf.scores.data.frame )
+```
+
+We clean the data and replace all 'missing' values by NA. Next we transform the "golf.score" variable to character class, after which we can transform it to numeric.
+
+```{r}
+golf.scores.data.frame$golf.score[ golf.scores.data.frame$golf.score == "Missing" ] <- NA
+golf.scores.data.frame$golf.score <- as.character( golf.scores.data.frame$golf.score )
+golf.scores.data.frame$golf.score.num <- as.numeric( golf.scores.data.frame$golf.score )
+summary( golf.scores.data.frame )
+```
+
+Summary statistics of "golf.score.num":
+
+- Min.: 65.00
+- Median: 90.00
+- Mean: 89.47
+- Max: 120.00
+- Standard deviation: 14.27
+- We have 5 NAs
+
+```{r}
+summary( golf.scores.data.frame$golf.score.num )
+sd( golf.scores.data.frame$golf.score.num, na.rm = TRUE )
+```
+
+With the data cleaned we can look at mean scores per species and observe the following:
+
+Mean Scores per Species:
+
+- Hedgehog: 104.54
+- Bunny Rabbit: 89.90
+- Armadillo: 72.39
+
+```{r}
+golfscore.mean.summary <- tapply( golf.scores.data.frame$golf.score.num,
+                              golf.scores.data.frame$species, mean, na.rm = TRUE )
+golfscore.mean.summary
+```
+
+Barplot visualising the results:
+
+```{r}
+barplot( golfscore.mean.summary,
+         xlab = "Species",
+         ylab = "Golf Score",
+         main = "Mean Golf Score per Species",
+         col = c( "grey30", "grey50", "grey70" ))
+```
+
+Using ggplot:
+
+```{r}
+golfscore.mean.summary.df <- data.frame( species = c( "Hedgehog", "Bunny Rabbit", "Armadillo" ),
+                                         golf.score = c( 104.54, 89.90, 72.39) )
+ggplot( golfscore.mean.summary.df, aes( x = species, y = golf.score ) ) +
+  geom_bar( stat = "identity", fill = "Dodgerblue3" ) +
+  labs( title = paste( "Barplot of Mean Golf Scores per Species" ),
+        subtitle = "Average",
+        caption = "Data source: Prof. Theodore Whitfield",
+        tag = paste( "Figure 1" ),
+        x = "Species",
+        y = "Golf Score",
+        colour = "Gears" ) +
+  theme_light()
+```
+
+
+#Problem 4: Sales Data Line Chart
+
+You have sales data for the years 2013 to 2017, for two locations: Boston and Salt Lake City. You would like to make a line chart, showing the trend of the sales for the two locations. Unfortunately, your data has a typo in it.
+
+**Problem**
+
+Read in the comma-separated file "Problem 4 data.csv", and create a line chart for the sales across the years 2013 to 2017, for both the Boston and Salt Lake City branches. You'll have to figure out how to deal with the typo in the data. Make a nice line chart, showing the lines for both branches, with points and a legend.
+
+**Solution**
+
+We load and explore the data:
+
+- 5 observations of 4 variables
+- Variable "X" is of class integer and seems to be an index
+- Variable "year" is of class integer and represents the year of sales
+- Variable "boston.sales" is of class numeric and represents the Boston sales
+- Variable "salt.lake.sales" is of class factor and represents the Salt Lake City sales. This variable has to be converted to numeric type and we have to correct the type
+
+```{r}
+# read file
+sales.df <- read.csv( "/Users/TdR/Coding/R/IntroductiontoR/Problem sets/ProblemSet7/Data/Problem 4 data.csv" )
+
+#examine first six rows
+head( sales.df )
+
+# get str
+str( sales.df )
+
+```
+
+We clean the data by transforming salt.lake.sales first to character type. We then correct the typo and transform the variable to numeric type.
+
+```{r}
+sales.df$salt.lake.sales <- as.character( sales.df$salt.lake.sales )
+sales.df$salt.lake.sales[3] <- 520.1
+head( sales.df )
+sales.df$salt.lake.sales <- as.numeric( sales.df$salt.lake.sales )
+head( sales.df )
+```
+
+Now the data is clean we can visualize the sales figures.
+
+```{r}
+ggplot( data = sales.df, aes(x = year)) +
+  geom_line(aes(y = boston.sales, colour = "boston.sales")) +
+  geom_line(aes(y = salt.lake.sales, colour = "salt.lake.sales")) +
+  geom_point(aes( y = boston.sales ), colour = "Dodgerblue3" ) +
+  geom_point(aes( y = salt.lake.sales ), colour = "Grey50" ) +
+  ylim( 350, 750 ) + 
+  labs( title = paste( "Chart of Annual Sales Boston and Salt Lake City" ),
+        subtitle = "USD",
+        caption = "Data source: Prof. Theodore Whitfield",
+        tag = "Figure 1",
+        x = "",
+        y = "Sales in USD",
+        colour = "Gears" ) +
+  scale_colour_manual("", 
+                      breaks = c("boston.sales", "salt.lake.sales"),
+                      values = c("Dodgerblue3", "Grey50")) +
+  theme_light()
+```
+
+
+#Problem 5: Sales Data Pie Chart
+
+You have sales data for 5 salespersons: Unfortunately, some of the sales data was missing, and this was recorded in the dataset by using the value -999. Your job is to produce a pie chart presenting the proportions of the total sales amount for the year, for each of the salespersons.
+
+**Problem**
+
+Read in the text-delimited file "Problem 5 data.txt", and convert the entries with -999 to `NA`. Using `tapply()`, create a summary of the total sales for each salesperson; you'll need to use the function `sum()` for this, and you should remember from Problem 3 that you can pass the optional named parameter `na.rm` to the `sum()` by including it at the end of the `tapply()` function call. Finally, make a nice pie chart using this data.
+
+**Solution**
+
+First we load and explore the data:
+
+- 212 observations of 2 variables
+- Variable "sales.person" is of factor class with 5 levels, the names of the sales reps
+- Variable "sale.amount" is of numeric type
+
+```{r}
+# read file
+sales.df <- read.delim( "/Users/TdR/Coding/R/IntroductiontoR/Problem sets/ProblemSet7/Data/Problem 5 data.txt" )
+
+#examine first six rows
+head( sales.df )
+
+# get str
+str( sales.df )
+
+# get summary
+summary( sales.df )
+
+```
+
+We clean the data by substituting the -999 values with NA.
+
+```{r}
+sales.df$sale.amount[ sales.df$sale.amount == -999 ] <- NA
+summary( sales.df )
+```
+
+We create a summary table with mean sales for the sales reps.
+
+```{r}
+sales.rep.summary <- tapply( sales.df$sale.amount,
+                              sales.df$sales.person, sum, na.rm = TRUE )
+sales.rep.summary
+```
+
+We visualize the data with a pie chart
+
+```{r}
+pie( sales.rep.summary,
+     main = "Pie Chart of Sales Person Share of Total Sales" )
+```
+
+We can add some more information by showing the percentages.
+
+```{r}
+# Pie Chart with Percentages
+sales <- c( 3023.7, 2524.8, 1442.7, 1863.4, 2850.3 ) 
+person <- c( "Ashley", "Elvis", "Obi", "Taylor", "Tyrone" )
+pct <- round( sales / sum( sales ) * 100 )
+person <- paste( person, pct ) # add percents to labels 
+person <- paste( person, "%" , sep = "" ) # ad % to labels 
+pie( sales, labels = person, col = c( "dodgerblue3", "dodgerblue", "aquamarine4", 
+                                      "Grey60", "Grey70" ),
+  	main="Pie Chart of Sales Contribution per Person" )
+```
+

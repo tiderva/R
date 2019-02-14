@@ -1,0 +1,579 @@
+---
+title: "Problem Set 4"
+subtitle: Tim de Rooij
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+
+#Instructions
+
+First, save this notebook with a title consisting of "ProblemSet4" and then your last name, with no spaces. So, for Bob Bunny, the file should be called "ProblemSet4Bunny". Also, type your name in the subtitle on line 2 above. Each problem will have a problem statement, followed with space for you to answer. Type your work in the code chunk where it says, "Type your answer in here". If we ask a question that has a numeric answer (for example, "How much money does Bob Bunny owe?"), then you should write some text in the notebook with your answer; don't assume that just the R printout is sufficient.
+
+When you're all done, knit the notebook to a PDF, and upload both the notebook and the PDF to Canvas. (Note: The notebook will have the file extension ".rmd".)
+
+
+
+
+Before we get started, let's clear out the environment:
+```{r}
+rm( list = ls() )
+```
+
+
+#Problem 1: More Quadratic Equations
+
+A *quadratic equation* is an equation of the form:
+$$
+ax^2 + bx + cx = 0
+$$
+From high-school algebra, we know that one solution of the quadratic equation is:
+$$
+x_1 = \frac{ - b + \sqrt{ b^2 - 4ac}}{2a}
+$$
+The other solution has the form:
+$$
+x_2 = \frac{ - b - \sqrt{ b^2 - 4ac}}{2a}
+$$
+If you look at these formulas, you might notice that there is something important going on underneath the square root sign:
+
+* If $b^2 > 4ac$, then the equation has two distinct real roots.
+
+* Otherwise, if $b^2 < 4ac$, then the quantity under the square root sign is negative, and the solutions will be complex numbers, so that there will be no real roots.
+
+* Finally, if $b^2 = 4ac$, then the equation has one real root.
+
+
+
+###Part a)
+
+Write a function named `quadratic.roots()` that takes in the three coefficient of the quadratic equation and returns these values:
+
+* If there are two distinct real roots, then the function returns the string "2 distinct real roots"
+
+* If there is just one real root, then the function returns the string 
+"1 real root"
+
+* If there are no real roots, then the function returns the value "No real roots"
+
+```{r}
+setwd("/Users/TdR/Coding/R/IntroductiontoR")
+
+# create function quadratic roots
+quadratic.roots <- function( a, b, c ) {
+  if( b^2 > 4 * a * c ) {
+    message( "2 distinct real roots" )
+  } else if( b^2 < 4 * a * c ) {
+    message( "no real roots" )
+  } else if( b^2 == 4 * a * c ) {
+    message( "one real root" )
+  }
+}
+
+```
+
+Test this function on these equations:
+$$
+x^2 - 6x -16 = 0
+$$
+```{r}
+# give coefficients (1, -6, -16) as arguments to function
+quadratic.roots( 1, -6, -16 )
+
+```
+
+Now try it on this equation:
+$$
+x^2 - 14x + 49 = 0
+$$
+
+```{r}
+# give coefficients (1, -14, -49) as arguments to function
+quadratic.roots( 1, -14, 49 )
+
+```
+
+Finally, try it on this equation:
+$$
+x^2 - 8x + 20 = 0
+$$
+
+The product is Not a Number (NaN). This happens because we are tyring to take the square root of a negative number, as negative numbers can't have square roots. In our case, -8^2 is -64, when we substract 80 ( 4 * 1 * 20 ) we get -144. Taking the square root of -144 results in NaN.
+
+```{r}
+# give coefficients (1, -8, 20) as arguments to function
+quadratic.roots( 1, -8, 20 )
+
+```
+
+
+
+#Problem 2: A Better Quadratic Solver
+
+
+
+###Part a)
+
+Write a function named `quadratic.solver.2()` that takes the three coefficients from a quadratic equation and returns a vector:
+
+* If there are two distinct roots $x_1$ and $x_2$, then the function should return a vector of length 2 containing the two distinct solutions $x_1$ and $x_2$.
+
+* If there are no real roots, then the function should return a vector of length 0.
+
+* If there is exactly one real root $x_1$, then the function should return a vector of length 1 containing this solution.
+
+Thus, if you are given the equation $2x^2 - 10x + 8$, which has solutions $x_1 = 1$ and $x_2 = 4$, then your function call should be `quadratic.solver.2(2, -10, 8)`, and it should return a vector of length 2 containing the values 1 and 4.
+
+**Answer**
+
+```{r}
+# write the function
+quadratic.solver.2 <- function( a, b, c ) {
+  if( b^2 > 4 * a * c ) {
+    message( "2 distinct real roots" )
+    x1 <- ( -b + sqrt( b^2 - 4 * a * c ) ) / ( 2 * a )
+    x2 <- ( -b - sqrt( b^2 - 4 * a * c ) ) / ( 2 * a )
+    ( ( c( x1, x2 ) ) )
+  } else if( b^2 < 4 * a * c ) {
+    message( "No real roots" )
+    ( ( as.numeric( 0 ) ) )
+  } else if( b^2 == 4 * a * c ) {
+    message( "1 real root" )
+    x1 <- -b / (2 * a)
+    ( ( c( x1 ) ) )
+  }
+}
+
+```
+Now let's test this on the example in the problem statement:
+```{r error = TRUE}
+quadratic.solver.2( 2, -10, 8 )
+```
+
+Here are some other equations to test:
+$$
+x^2 - 3x - 10 = 0
+$$
+This function has two roots 5 and -2. Run your `quadratic.solver.2()` function on this equation, and see if you get those values:
+```{r}
+# run the function with coefficients
+quadratic.solver.2( 1, -3, -10 )
+```
+Now let's consider this equation:
+$$
+x^2 - 6x + 9 = 0
+$$
+This equation has exactly one real root, $x = 3$. What do you get when you run `quadratic.solver.2()` on this equation?
+```{r}
+# run the function with coefficients
+quadratic.solver.2( 1, -6, 9 )
+```
+Next, consider this equation:
+$$
+x^2 - 3.5x - 30 = 0
+$$
+This equation has two roots: 7.5 and -4. What do you get when you run your `quadratic.solver.2()` on this equation?
+```{r}
+# run the function with coefficients
+quadratic.solver.2( 1, -3.5, -30 )
+```
+Next, try this equation:
+$$
+x^2 - 8x + 20 = 0
+$$
+This equation has no real roots, so your function should return an empty vector of length 0.
+```{r}
+# run the function with coefficients
+quadratic.solver.2( 1, -8, 20 )
+```
+
+
+Finally, this equation has two roots: 5 and -5:
+$$
+x^2 - 25 = 0
+$$
+This equation has two roots: 5 and -5. What do you get when you run `quadratic.solver()`:
+```{r}
+# run the function with coefficients
+quadratic.solver.2( 1, 0, -25 )
+```
+
+
+
+#Problem 3: Financial Functions
+
+Suppose we loan a certain amount of money, denoted $PV$ (which means "Present Value"), for $T$ years at an interest rate of $r$. Then the final value of the loan, denoted $FV$, is:
+$$
+FV = PV \times (1 + r)^T
+$$
+
+This is an equation in four variables, so if we know 3 of them, we can solve for the fourth. For instance:
+\begin{eqnarray*}
+PV & = & \frac{FV}{(1 + r)^T}\\
+\\
+r & = & \sqrt[T]{\frac{FV}{PV}} - 1\\
+\\
+T & = & \frac{\log{FV} - \log{PV}}{\log(1 + r)}
+\end{eqnarray*}
+
+
+
+###Part a)
+
+Write a function called `calculate.FV()` that takes the present value `PV`, interest rate `r`, and time duration `T` as arguments, and returns the future value of the loan.
+
+**Answer**
+
+```{r}
+# write function for FV
+calculate.FV <- function( PV, r, t ) {
+  message( "Future Value equals $", round( PV * ( 1 + r )^t, 2 ) )
+}
+```
+
+Suppose Taylor lends Jamey 180 dollars, at a 5.5\% interest rate, for 3 years. Using your function `calculate.FV()`, what is the final value of the loan?
+
+```{r}
+# run the function with input arguments 
+calculate.FV( 180, 0.055, 3 )
+```
+
+The future value of the loan equals $211.36.
+
+###Part b)
+
+Write a function called `calculate.PV()` that takes the future value `FV`, interest rate `r`, and time duration `T` as arguments, and returns the present value of the loan.
+
+**Answer**
+
+```{r}
+# write function for PV
+calculate.PV <- function( FV, r, t ) {
+  message( " Present Value equals $", round( FV / ( 1 + r )^t, 2 ) )
+}
+```
+
+Suppose Elvis borrows some money from Obie at a 4.5% interest rate so that in 4 years the final value will be 298.1297. Using your function `calculate.PV()`, what is the present value of the loan?
+
+```{r}
+# run PV function
+calculate.PV( 298.1297, 0.045, 4 )
+```
+
+The present value of the loan equals $250.
+
+###Part c)
+
+Write a function called `calculate.interest.rate()` that takes the present value `PV`, future value `FV`, and time duration `T` as arguments, and returns the interest rate of the loan.
+
+**Answer**
+
+```{r}
+# write function for interest rate calculation
+calculate.interest.rate <- function( PV, FV, t ) {
+  message( "Interest rate equals ", round( ( ( FV / PV -1 )^1 / t ) * 100, 2 ), "%" )
+}
+```
+
+Suppose Gazelle lends Tom Gravy 1000 dollars today and in 2.5 years the future value will be 1184.294 dollars. Using your function `calculate.interest.rate()`, what is the interest rate that Gazelle is charging Tom?
+
+```{r}
+# run function with input arguments
+calculate.interest.rate( 1000, 1184.294, 2.5 )
+```
+
+
+
+###Part d)
+
+Write a function called `calculate.loan.duration()` that takes the present value `PV`, the future value `FV`, and the interest rate `r`, and returns the time duration of the loan.
+
+**Answer**
+
+```{r}
+# write function for duration
+calculate.loan.duration <- function( PV, FV, r ) {
+  message( "Loan duration equals ", round( ( log( FV ) - log( PV ) ) / log( 1 + r ), 1 ), 
+           " years" )
+}
+```
+
+Goldilocks borrows 800 dollars from Baby Bear at 5.5\% interest, and when she pays it back it will be worth 1,045.568 dollars. Using your function `calculate.loan.duration()`, how long will it be before she pays back the loan?
+
+```{r}
+# run function with input arguments
+calculate.loan.duration( 800, 1045.568, 0.055 )
+```
+
+
+
+#Problem 4: Missing Value Indices
+
+Write a function named `missing.value.indices()` that takes two arguments:
+
+* First, a vector of any class.
+
+* Second, a named parameter called `print.message`, which has the default value FALSE.
+
+The function `missing.value.indices()` returns the indices of the locations with missing values in the input vector. That is, if there are missing values at positions 2, 5, and 7 in the input vector, then `missing.value.indices()` should return a numeric vector with the values 2, 5, and 7. Also, if the named parameter `print.message` is set to TRUE, then the function will print out a short sentence for each missing value such as "There were a missing value at position 2"
+
+**Answer**
+
+```{r}
+# write function
+missing.value.indices <- function( x, print.message = FALSE ) {
+  for( i in 1:length( x ) ) {
+    if( is.na( x )[i] & print.message == TRUE ) {
+       message( "There is a missing value at position ", i)
+    } else if( i == length(x) & print.message & all( !is.na( x ) ) == TRUE ) {
+      message( "There are no missing values" )
+    }
+  }
+  print( which( is.na( x ) ) )
+}
+```
+
+Test your function on these vectors:
+```{r}
+problem.4.test.vector.1 <- c(1, 6, 3, 7, NA, 12, -15, NA, 6, 8, NA)
+problem.4.test.vector.2 <- c(FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)
+```
+
+First, call the function on `problem.4.test.vector.1` without printing a message:
+```{r}
+missing.value.indices( problem.4.test.vector.1 )
+```
+
+Next, call the function on `problem.4.test.vector.1` this time printing a message:
+```{r}
+missing.value.indices( problem.4.test.vector.1, TRUE )
+```
+
+Now call the function on `problem.4.test.vector.2` without printing a message:
+```{r}
+missing.value.indices( problem.4.test.vector.2 )
+```
+
+Next, call the function on `problem.4.test.vector.2` this time printing a message:
+```{r}
+missing.value.indices( problem.4.test.vector.2, TRUE )
+```
+
+
+#Problem 5: Missing Value Imputer
+
+Write a function named `impute.missing.values()` that takes a numeric vector as input and returns a vector such that all the missing values of the input vector have been imputed using the vector mean.
+
+**Answer**
+
+```{r}
+# write function
+impute.missing.values <- function( x ) {
+  vec.mean <- mean( x, na.rm = TRUE )
+  if( any( is.na( x ) ) == TRUE ) {
+    x[ which( is.na( x ) == TRUE ) ] <- vec.mean
+  }
+  print( x )
+}
+
+
+```
+
+Let's test your code. First, we'll define a test vector, and check its mean:
+```{r}
+problem.5.test.vector <- c( 4.3, 2.8, 12.9, NA, -3.5, 8.8, NA, 4.7 )
+```
+
+Now run your `impute.missing.values()` on this test vector:
+```{r}
+impute.missing.values( problem.5.test.vector )
+```
+
+Notice that `problem.5.test.vector` remains unchanged:
+```{r}
+problem.5.test.vector
+```
+
+
+
+
+#Problem 6: Vector Summarizer
+
+Write a function named `vector.summarizer()` that takes a vector and prints out various summary statistics, depending on the class of the vector.
+
+* For every type of vector, `vector.summarizer()` should print out the class of the vector e.g. "numeric" or "logical".
+
+* If the vector is numeric, then `vector.summarizer()` should print out the mean, median, standard deviation, maximum value, and minimum value.
+
+* If the vector is logical, then `vector.summarizer()` should print out the number of TRUE values, the number of FALSE values, and the number of missing values.
+
+Make your printout messages readable -- don't just print the number, but have a complete sentence e.g. "The mean of the vector is 6.7." 
+
+Suggestion: it can be nice to indent your summary statistics statements, and you can do this by using a "\t" in any strings in `message()`.
+
+**Answer**
+
+```{r}
+# write function
+vector.summarizer <- function( x ) {
+  print( class( x ) )
+  if( class( x ) == "numeric" ) {
+    message( "The mean of the vector is ", "\t", "\t", "\t",
+             mean( x, na.rm = TRUE ) )
+    message( "The median of the vector is ", "\t", "\t", "\t",
+             median( x, na.rm = TRUE ) )
+    message( "The standard dev. of the vector is ", "\t", 
+             round( sd(x, na.rm = TRUE ), 2 ) )
+    message( "The maximum value of the vector is ", "\t", max( x ) )
+    message( "The minimum value of the vector is ", "\t", min( x ) )
+  } else if( class( x ) == "logical" ) {
+    message( "The total number of TRUE values equals ",  "\t", "\t", 
+             sum( x, na.rm = TRUE ) )
+    message( "The total number of FALSE values equals ", "\t", "\t", 
+             sum( x == FALSE, na.rm = TRUE ) )
+    message( "The total number of missing values equals ", "\t", 
+             sum( is.na( x ) ) )
+  } else {
+    summary( x )
+  }
+}
+```
+
+Test your function by running these test cases, and make sure that you get the right answer:
+```{r error = TRUE}
+vector.summarizer( c(4, 6, 7, 2, -8, 6, -12, 25 ) )
+```
+
+```{r error = TRUE}
+vector.summarizer( c( TRUE, TRUE, TRUE, FALSE, NA, FALSE, FALSE, TRUE))
+```
+
+
+
+
+
+#Problem 7: Data Frame Summarizer
+
+Write a function named `data.frame.summarizer()` that takes a data frame as its input argument and prints out a summary of each variable. Use your `summarizer()` function that you built in Problem 7 to do the actual work of printing out any messages. HINT: use a `for` loop across the columns.
+
+**Answer**
+
+```{r}
+# write function
+data.frame.summarizer <- function( x ) {
+  
+  for( i in 1:ncol( x ) ) {
+    
+    message( "The class of variable ", i, " is " , class( x[, i] ), " \n" )
+    
+    if( class( x[, i] ) == "numeric" ) {
+      message( "The mean is ", "\t", "\t", "\t", "\t",
+               round( mean( x[, i], na.rm = TRUE ), 2 ) )
+      message( "The median is ", "\t", "\t", "\t", 
+               round( median( x[, i], na.rm = TRUE ), 2 ) )
+      message( "The standard dev. is ", "\t", 
+               round( sd(x[, i], na.rm = TRUE ), 2 ) )
+      message( "The maximum value is ", "\t", 
+               round( max( x[, i] ), 2 ) )
+      message( "The minimum value is ", "\t", 
+               round( min( x[, i] ), 2 ), " \n" )
+    } 
+    else if( class( x[, i] ) == "logical" ) {
+      message( "The total number of TRUE values equals ",  "\t", "\t", 
+               sum( x[, i], na.rm = TRUE ) )
+      message( "The total number of FALSE values equals ", "\t", "\t",
+               length( x[, i] ) - sum ( x[, i], na.rm = TRUE ) )
+      message( "The total number of missing values equals ", "\t", 
+               sum( is.na( x[, i] ) ), " \n" )
+    } 
+    else {
+      message( "Summary:" )
+      print( summary( x[, i] ) )
+    }
+  }
+}
+```
+
+Test your function on the built-in data frame `iris`:
+```{r error = TRUE}
+data.frame.summarizer( iris )
+```
+
+
+
+#Problem 8: Improved Data Frame Summarizer
+
+The data frame summarizer that we built in Problem 7 is nice, but we can make it even better. Now write a new function named `improved.data.frame.summarizer()` that does these things:
+
+* First, it prints out the index of the column, along with the column name. So, the first line might be something like "Column 1 has name: ID".
+
+* Next, you should print out the number of non-missing and missing values for the column.
+
+* Print out the class of the column vector.
+
+* If the column vector is numeric, print out lines for the mean, median, standard deviation, min, and max.
+
+* If the column vector is logical, print out the proportion of non-missing values that are TRUE.
+
+* Finally, at the end, put in an extra carriage return, so there is a space between the results for each column.
+
+You won't be able to use the function that you defined in Problem 6. But you're welcome to copy and paste anything that you wrote for that problem, and then to modify it.
+
+**Answer**
+
+```{r}
+# write function
+improved.data.frame.summarizer <- function( x ) {
+  
+  for( i in 1:ncol( x ) ) {
+    
+    message( "\n" )
+    message( "Column ", i, " has name ", names( x[i] ) )
+    message( "Column ", i, " has ", sum( is.na( x[, i] ) ), " missing values" )
+    message( "Column ", i, " has ", sum( !is.na( x[, i] ) ), 
+             " non-missing values" )
+    message( "Column ", i, " class is " , class( x[, i] ) )
+    message( "Column ", i, " summary:" )
+    
+    if( class( x[, i] ) == "numeric" ) {
+      message( "The mean is ", "\t", "\t", "\t", "\t",
+               round( mean( x[, i], na.rm = TRUE ) ) )
+      message( "The median is ", "\t", "\t", "\t", 
+               median( x[, i], na.rm = TRUE ) )
+      message( "The standard dev. is ", "\t", 
+               round( sd(x[, i], na.rm = TRUE ), 2 ) )
+      message( "The maximum value is ", "\t", max( x[, i] ) )
+      message( "The minimum value is ", "\t", min( x[, i] ) )
+    } 
+    else if( class( x[, i] ) == "logical" ) {
+      message( "The total number of TRUE values equals ",  "\t", "\t", 
+               sum( x[, i], na.rm = TRUE ) )
+      message( "The proportion of TRUE values equals ", 
+               sum( x[, i], na.rm = TRUE ) / length( x[, i] ) )
+      message( "The total number of FALSE values equals ", "\t", 
+               length( x[, i] ) - sum ( x[, i], na.rm = TRUE ) )
+      message( "The proportion of FALSE values equals ", 
+               sum( x[, i], na.rm = FALSE ) / length( x[, i] ) )
+      message( "The total number of missing values equals ", "\t", 
+               sum( is.na( x[, i] ) ) )
+    } 
+    else {
+      print( summary( x[, i] ) )
+    }
+  }
+}
+```
+
+
+Test your function on the built-in data frame `iris`:
+```{r error = TRUE}
+improved.data.frame.summarizer( iris )
+```
+
+
+
+
+
+
